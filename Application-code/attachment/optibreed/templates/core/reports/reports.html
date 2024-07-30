@@ -1,0 +1,91 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div id="main" class="main">
+    <div class="pagetitle">
+        <h1>Reports</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'optibreed:dashboard' %}">Home</a></li>
+                <li class="breadcrumb-item active">Report</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <div id="hero" class="card shadow-sm p-4 mb-4">
+        <form method="get" class="form-inline justify-content-center">
+            <div class="form-row align-items-center">
+                <div class="form-group mb-2 mx-2">
+                    <label for="room_id" class="mr-2">Select Room:</label>
+                    {{ form.room_id|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-2 mx-2">
+                    <label for="report_type" class="mr-2">Report Type:</label>
+                    {{ form.report_type|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-2 mx-2">
+                    <label for="number_of_records" class="mr-2">Number of Records:</label>
+                    {{ form.number_of_records|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-2 mx-2">
+                    <label for="start_date" class="mr-2">Start Date:</label>
+                    {{ form.start_date|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-2 mx-2">
+                    <label for="end_date" class="mr-2">End Date:</label>
+                    {{ form.end_date|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-2 mx-2">
+                    <label for="order" class="mr-2">Order:</label>
+                    {{ form.order|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-2 mx-2">
+                    <label for="file_type" class="mr-2">File Type:</label>
+                    {{ form.file_type|add_class:"form-control" }}
+                </div>
+                <div class="form-group mb-2 mx-2">
+                    <button type="submit" class="btn btn-primary mx-2 mb-2">Generate Report</button>
+                    <button type="submit" name="download_pdf" class="btn btn-secondary mx-2 mb-2">Download PDF</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if conditions %}
+    <div id="avg2" class="card shadow-sm p-4 mb-4 text-center">
+        <h3>Average Data:</h3>
+        <div id="avg" class="d-flex justify-content-center">
+            <p class="mx-3">Temperature: <br> {{ report_data.avg_temperature }}°C</p>
+            <p class="mx-3">Humidity:<br> {{ report_data.avg_humidity }}%</p>
+            <p class="mx-3">Light Intensity:<br> {{ report_data.avg_lightintensity }} lux</p>
+        </div>
+    </div>
+
+    <div id="table" class="card shadow-sm p-4 mb-4">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Light Intensity (lux)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for condition in conditions %}
+                    <tr>
+                        <td>{{ condition.Timestamp }}</td>
+                        <td>{{ condition.Temperature }}</td>
+                        <td>{{ condition.Humidity }}</td>
+                        <td>{{ condition.Lightintensity }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

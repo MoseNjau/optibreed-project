@@ -1,0 +1,56 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div id="main" class="main mt-5">
+  <div class="card shadow-sm">
+    <div class="pagetitle p-4">
+      <h1 class="display-4">Edit Room</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'optibreed:dashboard' %}">Home</a></li>
+          <li class="breadcrumb-item active"><a href="{% url 'optibreed:rooms' %}">Rooms</a></li>
+          <li class="breadcrumb-item active"><a href="#">Edit Room</a></li>
+        </ol>
+      </nav>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group mb-3">
+          {{ form.name.label_tag }}
+          {{ form.name }}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.Material_name.label_tag }}
+          {{ form.Material_name }}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.Min_Temperature.label_tag }}
+          {{ form.Min_Temperature }}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.Max_Temperature.label_tag }}
+          {{ form.Max_Temperature }}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.Min_Humidity.label_tag }}
+          {{ form.Min_Humidity }}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.Max_Humidity.label_tag }}
+          {{ form.Max_Humidity }}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.Min_Lightintensity.label_tag }}
+          {{ form.Min_Lightintensity }}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.Max_Lightintensity.label_tag }}
+          {{ form.Max_Lightintensity }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

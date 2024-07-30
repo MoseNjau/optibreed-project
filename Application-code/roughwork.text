@@ -1,0 +1,189 @@
+Here's the updated folder structure for the OptiBreed app:
+universe.io/cards
+
+optibreed/
+├── manage.py
+├── optibreed/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── app/
+│   ├── migrations/
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── views.py
+│   └── urls.py
+├── static/
+│   ├── admin/
+│   │   ├── css/
+│   │   ├── fonts/
+│   │   ├── images/
+│   │   └── js/
+│   ├── core/
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   ├── img/
+│   │   ├── js/
+│   │   │   └── main.js
+│   │   └── vendor/
+│   ├── dashboard/
+│   │   ├── css/
+│   │   ├── img/
+│   │   ├── js/
+│   │   └── vendor/
+│   └── public/
+│       ├── css/
+│       ├── img/
+│       ├── js/
+│       └── vendor/
+├── templates/
+│   ├── account/
+│   │   ├── base.html
+│   │   ├── login.html
+│   │   ├── logout.html
+│   │   └── signup.html
+│   ├── core/
+│   │   ├── components/
+│   │   │   ├── footer.html
+│   │   │   ├── sidebar.html
+│   │   │   └── topnav.html
+│   │   ├── dashboard/
+│   │   │   └── dashboard.html
+│   │   ├── dependencies/
+│   │   │   ├── css.html
+│   │   │   └── js.html
+│   │   ├── notifications/
+│   │   │   ├── details.html
+│   │   │   └── list.html
+│   │   ├── reports/
+│   │   │   └── reports.html
+│   │   ├── rooms/
+│   │   │   ├── add_room.html
+│   │   │   ├── edit_room.html
+│   │   │   └── room_details.html
+│   │   ├── base.html
+│   │   └── index.html
+│   └── public/
+│       ├── components/
+│       │   ├── footer.html
+│       │   └── navbar.html
+│       ├── dependencies/
+│       │   ├── css.html
+│       │   └── js.html
+│       ├── about.html
+│       ├── base.html
+│       ├── contact.html
+│       ├── index.html
+│       └── pricing.html
+```
+
+
+
+Monitor Sensor Data:
+
+Track real-time data from sensors.
+Ensure all sensors are reporting within expected intervals.
+Device Control:
+
+Automatically adjust devices based on sensor readings.
+Provide manual control when needed.
+Alerting and Status Monitoring:
+
+Notify the user of any issues, such as disconnected sensors or devices.
+Display the overall status of the room, indicating whether all components are functioning correctly.
+Here's how you can achieve this:
+
+Monitoring Sensor Data
+Regular Updates:
+
+Ensure that each sensor sends data at regular intervals (e.g., every minute).
+Record the timestamp of the last received data for each sensor.
+Health Check:
+
+Compare the current time with the last update time for each sensor.
+If a sensor hasn't updated within a set threshold (e.g., 5 minutes), mark it as "Disconnected."
+Device Control
+Automated Control:
+
+Define rules for each device (e.g., turn on the fan if the temperature exceeds 25°C).
+Implement a control mechanism in the backend to send commands to devices.
+Manual Override:
+
+Provide the user with the ability to manually control devices via the application interface.
+Alerting and Status Monitoring
+Room Status:
+
+Aggregate the status of all sensors and devices to determine the overall room status.
+Use statuses like "All Systems Go," "Warning," and "Critical" to indicate the overall health.
+Detailed Status:
+
+Provide a detailed view showing the status of each sensor and device.
+Highlight any disconnected or malfunctioning components.
+Implementation Steps
+Backend
+Sensor and Device Models:
+python
+Copy code
+from django.db import models
+from django.utils import timezone
+from datetime import timedelta
+
+class Room(models.Model):
+    name = models.CharField(max_length=255)
+    min_temperature = models.FloatField()
+    max_temperature = models.FloatField()
+    min_humidity = models.FloatField()
+    max_humidity = models.FloatField()
+    min_light_intensity = models.FloatField()
+    max_light_intensity = models.FloatField()
+
+class Sensor(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50)  # e.g., temperature, humidity, light
+    last_update = models.DateTimeField(auto_now=True)
+    value = models.FloatField()
+
+    def is_connected(self):
+        return timezone.now() - self.last_update <= timedelta(minutes=5)
+
+class Device(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50)  # e.g., fan, heater
+    status = models.CharField(max_length=50)  # e.g., on, off
+Control Logic:
+python
+Copy code
+def control_room_conditions(room):
+    sensors = Sensor.objects.filter(room=room)
+    for sensor in sensors:
+        if not sensor.is_connected():
+            # Handle disconnected sensor
+            continue
+        
+        if sensor.type == 'temperature' and sensor.value > room.max_temperature:
+            # Turn on fan
+            Device.objects.filter(room=room, type='fan').update(status='on')
+        elif sensor.type == 'temperature' and sensor.value < room.min_temperature:
+            # Turn off fan
+            Device.objects.filter(room=room, type='fan').update(status='off')
+
+        # Similar logic for other sensors and devices
+
+def check_room_status(room):
+    sensors = Sensor.objects.filter(room=room)
+    devices = Device.objects.filter(room=room)
+    status = "All Systems Go"
+    for sensor in sensors:
+        if not sensor.is_connected():
+            status = "Critical"
+            break
+    for device in devices:
+        if device.status not in ['on', 'off']:
+            status = "Warning"
+            break
+    return status
